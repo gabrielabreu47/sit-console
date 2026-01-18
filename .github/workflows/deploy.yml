@@ -1,0 +1,54 @@
+name: Deploy Console to S3
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  CONSOLE_BUCKET: ${{ vars.CONSOLE_BUCKET }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        run: npm run build
+
+      - name: Upload to S3 (SPA)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [ -z "${CONSOLE_BUCKET}" ]; then
+            echo "CONSOLE_BUCKET not set" >&2; exit 1
+          fi
+          aws s3 sync dist/ s3://"${CONSOLE_BUCKET}"/ \
+            --delete \
+            --cache-control "public,max-age=300" \
+            --exclude index.html
+
+          aws s3 cp dist/index.html s3://"${CONSOLE_BUCKET}"/index.html \
+            --cache-control "no-cache"
+
+      - name: Website URL
+        run: |
+          echo "Visit: http://${CONSOLE_BUCKET}.s3-website-${AWS_REGION}.amazonaws.com"
