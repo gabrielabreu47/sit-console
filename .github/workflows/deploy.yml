@@ -25,25 +25,13 @@ jobs:
           node-version: 20
           cache: 'yarn'
 
-      - name: Enable Corepack (Yarn)
+      - name: Enable Corepack (Yarn v1)
         run: |
           corepack enable
-          corepack prepare yarn@stable --activate
+          corepack prepare yarn@1.22.22 --activate
 
       - name: Install deps (Yarn)
-        run: |
-          if [ -f yarn.lock ]; then
-            if yarn --version | grep -q '^1\.'; then
-              echo "Using Yarn v1 (classic) with frozen lockfile"
-              yarn install --frozen-lockfile
-            else
-              echo "Using Yarn Berry with immutable installs"
-              yarn install --immutable
-            fi
-          else
-            echo "No yarn.lock found, performing standard install"
-            yarn install
-          fi
+        run: yarn install --frozen-lockfile
 
       - name: Build
         env:
