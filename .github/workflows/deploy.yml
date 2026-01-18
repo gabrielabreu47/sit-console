@@ -31,20 +31,7 @@ jobs:
           corepack prepare yarn@stable --activate
 
       - name: Install deps (Yarn)
-        run: |
-          if [ -f yarn.lock ]; then
-            if yarn --version | grep -q '^1\.'; then
-              echo "Using Yarn v1 (classic) with frozen lockfile"
-              yarn install --frozen-lockfile
-            else
-              echo "Using Yarn Berry without immutable lock enforcement (CI tolerance)"
-              # --immutable would fail when lockfile needs updates; relax for CI to proceed
-              yarn install --immutable=false
-            fi
-          else
-            echo "No yarn.lock found, performing standard install"
-            yarn install
-          fi
+        run: yarn
 
       - name: Build
         env:
