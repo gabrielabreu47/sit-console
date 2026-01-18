@@ -23,15 +23,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'yarn'
 
-      - name: Install deps
-        run: npm ci
+      - name: Enable Corepack (Yarn)
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+
+      - name: Install deps (Yarn)
+        run: |
+          if [ -f yarn.lock ]; then
+            if yarn --version | grep -q '^1\.'; then
+              echo "Using Yarn v1 (classic) with frozen lockfile"
+              yarn install --frozen-lockfile
+            else
+              echo "Using Yarn Berry with immutable installs"
+              yarn install --immutable
+            fi
+          else
+            echo "No yarn.lock found, performing standard install"
+            yarn install
+          fi
 
       - name: Build
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-        run: npm run build
+        run: yarn build
 
       - name: Upload to S3 (SPA)
         env:
