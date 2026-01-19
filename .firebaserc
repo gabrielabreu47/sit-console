@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "sit-abgroup"
-  }
+  },
+  "targets": {
+    "sit-abgroup": {
+      "hosting": {
+        "sit-console": [
+          "sit-console"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
