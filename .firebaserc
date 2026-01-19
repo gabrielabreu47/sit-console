@@ -6,7 +6,7 @@
     "sit-abgroup": {
       "hosting": {
         "sit-console": [
-          "sit-console"
+          "seat-console"
         ]
       }
     }
