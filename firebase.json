@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "sit-console",
     "public": "dist",
     "ignore": [
       "firebase.json",
